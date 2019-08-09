@@ -64,6 +64,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        self.window = window
+        appCoordinator = AppCoordinator(window: window)
+        appCoordinator?.start(AppCoordinator.LaunchType.shortcutItem(shortcutItem))
+    }
+
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
