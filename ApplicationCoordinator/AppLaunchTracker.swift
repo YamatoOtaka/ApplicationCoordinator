@@ -92,7 +92,7 @@ struct LaunchTracker {
             return nil
         }
         switch event {
-        case .remoteNotification(let application, let userInfo, _ ):
+        case .remoteNotification(let application, _ , _ ):
             delegate.remoteNotificationDidCall(application)
         case .localNotification(let application, let userInfo, _ ):
             delegate.localNotificationDidCall(application, userInfo: userInfo)
