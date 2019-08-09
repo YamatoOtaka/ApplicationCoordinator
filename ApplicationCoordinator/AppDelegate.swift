@@ -47,6 +47,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        self.window = window
+        appCoordinator = AppCoordinator(window: window)
+        appCoordinator?.start(AppCoordinator.LaunchType.userActivity(userActivity))
+
+        return true
+    }
 
 }
 
