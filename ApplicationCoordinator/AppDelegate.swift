@@ -7,11 +7,13 @@
 //
 
 import UIKit
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    private var appCoordinator: AppCoordinator?
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -42,5 +44,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 
+}
+
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.badge, .sound, .alert])
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        let application = UIApplication.shared
+        let request = response.notification.request
+        let userInfo = request.content.userInfo
+
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        self.window = window
+        appCoordinator = AppCoordinator(window: window)
+        appCoordinator?.start(AppCoordinator.LaunchType.notification(AppCoordinator.conversionAppState(application), userInfo: userInfo, notification: request))
+
+        completionHandler()
+    }
 }
 
