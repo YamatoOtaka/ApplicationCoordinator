@@ -49,6 +49,7 @@ final class AppCoordinator: Coordinator {
             }
         }
         window.makeKeyAndVisible()
+        _ = LaunchTracker.track(launchType: type, delegate: self)
     }
 
     static func conversionAppState(_ application: UIApplication) -> AppState {
@@ -62,5 +63,15 @@ final class AppCoordinator: Coordinator {
         @unknown default:
             return .unknown
         }
+    }
+}
+
+extension AppCoordinator: LaunchTrackerDelegate {
+    func remoteNotificationDidCall(_ appState: AppCoordinator.AppState) {
+        // TODO: send some events
+    }
+
+    func localNotificationDidCall(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable : Any]) {
+        // TODO: send some events
     }
 }
