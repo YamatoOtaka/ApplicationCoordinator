@@ -56,6 +56,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        self.window = window
+        appCoordinator = AppCoordinator(window: window)
+        appCoordinator?.start(AppCoordinator.LaunchType.openURL(url))
+        return true
+    }
+
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
