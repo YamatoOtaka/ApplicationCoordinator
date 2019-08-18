@@ -8,7 +8,7 @@
 
 import UserNotifications
 
-protocol LaunchTrackerDelegate: AnyObject {
+protocol LaunchTrackerDelegate: class {
     func remoteNotificationDidCall(_ appState: AppCoordinator.AppState)
     func localNotificationDidCall(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any])
 }
