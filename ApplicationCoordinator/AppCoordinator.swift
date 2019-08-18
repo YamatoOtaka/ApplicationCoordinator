@@ -67,6 +67,10 @@ final class AppCoordinator: Coordinator {
 }
 
 extension AppCoordinator: LaunchTrackerDelegate {
+    func normalDidCall() {
+        // TODO: send some events
+    }
+
     func remoteNotificationDidCall(_ appState: AppCoordinator.AppState) {
         // TODO: send some events
     }

@@ -10,6 +10,7 @@ import UserNotifications
 import UIKit
 
 protocol LaunchTrackerDelegate: class {
+    func normalDidCall()
     func remoteNotificationDidCall(_ appState: AppCoordinator.AppState)
     func localNotificationDidCall(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any])
     func userActivityDidCall(_ activity: NSUserActivity)
@@ -19,19 +20,18 @@ protocol LaunchTrackerDelegate: class {
 
 struct LaunchTracker {
     enum Event: Equatable {
+        case normal
         case remoteNotification(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any], notification: UNNotificationRequest)
         case localNotification(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any], notification: UNNotificationRequest)
         case userActivity(_ userActivity: NSUserActivity)
         case openURL(_ url: URL)
         // Fix it later to remove UIKit
         case shortcutItem(_ shortcutItem: UIApplicationShortcutItem)
-        // If launch type is not set "self = .none", because this project is WIP
-        case none
 
         init?(launchType: AppCoordinator.LaunchType) {
             switch launchType {
             case .normal:
-                self = .none
+                self = .normal
             case .notification(let application, let userInfo, let request):
                 if request.trigger is UNPushNotificationTrigger {
                     self = .remoteNotification(application, userInfo: userInfo, notification: request)
@@ -40,15 +40,17 @@ struct LaunchTracker {
                 }
             case .userActivity(let activity):
                 self = .userActivity(activity)
-            case .openURL(_):
-                self = .none
-            case .shortcutItem(_):
-                self = .none
+            case .openURL(let url):
+                self = .openURL(url)
+            case .shortcutItem(let item):
+                self = .shortcutItem(item)
             }
         }
 
         static func == (lhs: LaunchTracker.Event, rhs: LaunchTracker.Event) -> Bool {
             switch lhs {
+            case .normal:
+                return rhsCompare(rhs, compareValue: nil)
             case .remoteNotification(_, _, let requestt):
                 return rhsCompare(rhs, compareValue: requestt)
             case .localNotification(_, _, notification: let request):
@@ -59,13 +61,13 @@ struct LaunchTracker {
                 return rhsCompare(rhs, compareValue: url)
             case .shortcutItem(let item):
                 return rhsCompare(rhs, compareValue: item)
-            case .none:
-                return rhsCompare(rhs, compareValue: nil)
             }
         }
 
         private static func rhsCompare(_ rhs: LaunchTracker.Event, compareValue: Any?) -> Bool {
             switch rhs {
+            case .normal:
+                return true
             case .remoteNotification(_, _, let request):
                 guard let value = compareValue as? UNNotificationRequest else {
                     return false
@@ -111,8 +113,6 @@ struct LaunchTracker {
                 } else {
                     return false
                 }
-            case .none:
-                return true
             }
         }
     }
@@ -133,6 +133,8 @@ struct LaunchTracker {
             return event
         }
         switch event {
+        case .normal:
+            delegate.normalDidCall()
         case .remoteNotification(let application, _ , _ ):
             delegate.remoteNotificationDidCall(application)
         case .localNotification(let application, let userInfo, _ ):
@@ -143,7 +145,6 @@ struct LaunchTracker {
             delegate.openURLDidCall(url)
         case .shortcutItem(let item):
             delegate.shortcutItemDidCall(item)
-        case .none: break
         }
         return event
     }
