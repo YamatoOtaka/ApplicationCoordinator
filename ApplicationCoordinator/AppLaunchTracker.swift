@@ -11,12 +11,14 @@ import UserNotifications
 protocol LaunchTrackerDelegate: class {
     func remoteNotificationDidCall(_ appState: AppCoordinator.AppState)
     func localNotificationDidCall(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any])
+    func userActivityDidCall(_ activity: NSUserActivity)
 }
 
 struct LaunchTracker {
     enum Event: Equatable {
         case remoteNotification(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any], notification: UNNotificationRequest)
         case localNotification(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any], notification: UNNotificationRequest)
+        case userActivity(_ userActivity: NSUserActivity)
         // If launch type is not set "self = .none", because this project is WIP
         case none
 
@@ -30,8 +32,8 @@ struct LaunchTracker {
                 } else {
                     self = .localNotification(application, userInfo: userInfo, notification: request)
                 }
-            case .userActivity(_):
-                self = .none
+            case .userActivity(let activity):
+                self = .userActivity(activity)
             case .openURL(_):
                 self = .none
             case .shortcutItem(_):
@@ -45,6 +47,8 @@ struct LaunchTracker {
                 return rhsCompare(rhs, compareValue: requestt)
             case .localNotification(_, _, notification: let request):
                 return rhsCompare(rhs, compareValue: request)
+            case .userActivity(let activity):
+                return rhsCompare(rhs, compareValue: activity)
             case .none:
                 return rhsCompare(rhs, compareValue: nil)
             }
@@ -70,6 +74,15 @@ struct LaunchTracker {
                 } else {
                     return false
                 }
+            case .userActivity(let activity):
+                guard let value = compareValue as? NSUserActivity else {
+                    return false
+                }
+                if value.activityType == activity.activityType {
+                    return true
+                } else {
+                    return false
+                }
             case .none:
                 return true
             }
@@ -87,15 +100,17 @@ struct LaunchTracker {
         }
     }
 
-    private static func send(event: Event, delegate: LaunchTrackerDelegate?) -> Event? {
+    private static func send(event: Event, delegate: LaunchTrackerDelegate?) -> Event {
         guard let delegate = delegate else {
-            return nil
+            return event
         }
         switch event {
         case .remoteNotification(let application, _ , _ ):
             delegate.remoteNotificationDidCall(application)
         case .localNotification(let application, let userInfo, _ ):
             delegate.localNotificationDidCall(application, userInfo: userInfo)
+        case .userActivity(let activity):
+            delegate.userActivityDidCall(activity)
         case .none: break
         }
         return event

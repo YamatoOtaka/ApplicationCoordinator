@@ -74,4 +74,8 @@ extension AppCoordinator: LaunchTrackerDelegate {
     func localNotificationDidCall(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable : Any]) {
         // TODO: send some events
     }
+
+    func userActivityDidCall(_ activity: NSUserActivity) {
+        // TODO: send some events
+    }
 }
