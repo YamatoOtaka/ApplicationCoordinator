@@ -7,12 +7,14 @@
 //
 
 import UserNotifications
+import UIKit
 
 protocol LaunchTrackerDelegate: class {
     func remoteNotificationDidCall(_ appState: AppCoordinator.AppState)
     func localNotificationDidCall(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any])
     func userActivityDidCall(_ activity: NSUserActivity)
-    func openURL(_ url: URL)
+    func openURLDidCall(_ url: URL)
+    func shortcutItemDidCall(_ shortcutItem: UIApplicationShortcutItem)
 }
 
 struct LaunchTracker {
@@ -21,6 +23,8 @@ struct LaunchTracker {
         case localNotification(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any], notification: UNNotificationRequest)
         case userActivity(_ userActivity: NSUserActivity)
         case openURL(_ url: URL)
+        // Fix it later to remove UIKit
+        case shortcutItem(_ shortcutItem: UIApplicationShortcutItem)
         // If launch type is not set "self = .none", because this project is WIP
         case none
 
@@ -53,6 +57,8 @@ struct LaunchTracker {
                 return rhsCompare(rhs, compareValue: activity)
             case .openURL(let url):
                 return rhsCompare(rhs, compareValue: url)
+            case .shortcutItem(let item):
+                return rhsCompare(rhs, compareValue: item)
             case .none:
                 return rhsCompare(rhs, compareValue: nil)
             }
@@ -96,6 +102,15 @@ struct LaunchTracker {
                 } else {
                     return false
                 }
+            case .shortcutItem(let item):
+                guard let newItem = compareValue as? UIApplicationShortcutItem else {
+                    return false
+                }
+                if newItem.localizedTitle == item.localizedTitle {
+                    return true
+                } else {
+                    return false
+                }
             case .none:
                 return true
             }
@@ -125,7 +140,9 @@ struct LaunchTracker {
         case .userActivity(let activity):
             delegate.userActivityDidCall(activity)
         case .openURL(let url):
-            delegate.openURL(url)
+            delegate.openURLDidCall(url)
+        case .shortcutItem(let item):
+            delegate.shortcutItemDidCall(item)
         case .none: break
         }
         return event

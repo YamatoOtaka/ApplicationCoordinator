@@ -61,6 +61,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window = window
         appCoordinator = AppCoordinator(window: window)
         appCoordinator?.start(AppCoordinator.LaunchType.openURL(url))
+
         return true
     }
 

@@ -79,7 +79,11 @@ extension AppCoordinator: LaunchTrackerDelegate {
         // TODO: send some events
     }
 
-    func openURL(_ url: URL) {
+    func openURLDidCall(_ url: URL) {
+        // TODO: send some events
+    }
+
+    func shortcutItemDidCall(_ shortcutItem: UIApplicationShortcutItem) {
         // TODO: send some events
     }
 }
