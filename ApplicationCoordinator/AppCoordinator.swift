@@ -78,4 +78,8 @@ extension AppCoordinator: LaunchTrackerDelegate {
     func userActivityDidCall(_ activity: NSUserActivity) {
         // TODO: send some events
     }
+
+    func openURL(_ url: URL) {
+        // TODO: send some events
+    }
 }

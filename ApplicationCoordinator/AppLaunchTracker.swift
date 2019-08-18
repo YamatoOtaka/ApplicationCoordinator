@@ -12,6 +12,7 @@ protocol LaunchTrackerDelegate: class {
     func remoteNotificationDidCall(_ appState: AppCoordinator.AppState)
     func localNotificationDidCall(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any])
     func userActivityDidCall(_ activity: NSUserActivity)
+    func openURL(_ url: URL)
 }
 
 struct LaunchTracker {
@@ -19,6 +20,7 @@ struct LaunchTracker {
         case remoteNotification(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any], notification: UNNotificationRequest)
         case localNotification(_ appState: AppCoordinator.AppState, userInfo: [AnyHashable: Any], notification: UNNotificationRequest)
         case userActivity(_ userActivity: NSUserActivity)
+        case openURL(_ url: URL)
         // If launch type is not set "self = .none", because this project is WIP
         case none
 
@@ -49,6 +51,8 @@ struct LaunchTracker {
                 return rhsCompare(rhs, compareValue: request)
             case .userActivity(let activity):
                 return rhsCompare(rhs, compareValue: activity)
+            case .openURL(let url):
+                return rhsCompare(rhs, compareValue: url)
             case .none:
                 return rhsCompare(rhs, compareValue: nil)
             }
@@ -83,6 +87,15 @@ struct LaunchTracker {
                 } else {
                     return false
                 }
+            case .openURL(let url):
+                guard let newUrl = compareValue as? URL else {
+                    return false
+                }
+                if newUrl.absoluteString == url.absoluteString {
+                    return true
+                } else {
+                    return false
+                }
             case .none:
                 return true
             }
@@ -111,6 +124,8 @@ struct LaunchTracker {
             delegate.localNotificationDidCall(application, userInfo: userInfo)
         case .userActivity(let activity):
             delegate.userActivityDidCall(activity)
+        case .openURL(let url):
+            delegate.openURL(url)
         case .none: break
         }
         return event
